@@ -48,3 +48,21 @@ inOrder :: MessageTree -> [LogMessage]
 inOrder Leaf = []
 inOrder (Node left lmsg right) = inOrder left ++ [lmsg] ++ inOrder right
 
+-- Takes unsorted list of LogMessages and returns a list of the messages
+-- corresponding to any errors with a severity of 50 or greater, sorted by
+-- timestamp.
+whatWentWrong :: [LogMessage] -> [String]
+whatWentWrong = extractMessage . filter (severe 50)
+
+-- Returns True only when it's a Error with level > minLvl
+severe :: Int -> LogMessage -> Bool
+severe minLvl (LogMessage (Error lvl) _ _)
+  | lvl > minLvl  = True
+  | otherwise = False
+severe _ _ = False
+
+-- Strips extra information from LogMessages, leaves only list of Strings
+extractMessage :: [LogMessage] -> [String]
+extractMessage (LogMessage _ _ msg : msgs) = msg : extractMessage msgs
+extractMessage _ = []
+
