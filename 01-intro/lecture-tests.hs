@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC -Wall #-}
 
-module Test where
+module Lecture where
 
 hailstoneLen :: Integer -> Integer
 hailstoneLen n = intListLength (hailstone n) - 1
