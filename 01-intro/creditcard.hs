@@ -2,7 +2,7 @@
 
 {-# LANGUAGE ViewPatterns #-}
 
-module Homework where
+module CreditCard where
 
 -- Return True for a valid credit card number
 -- validate 4012888888881881 = True
