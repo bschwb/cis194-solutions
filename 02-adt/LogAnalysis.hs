@@ -29,9 +29,22 @@ parse = map parseMessage . lines
 -- greater than the timestamp in the LogMessage of the Node
 -- If LogMessage is of type Unknown return unchanged MessageTree
 insert :: LogMessage -> MessageTree -> MessageTree
-insert lmsg@(LogMessage _ _ _) Leaf = Node Leaf lmsg Leaf
-insert lmsg1@(LogMessage _ ts1 _) (Node left (LogMessage _ ts2 _) right)
-  | ts1 > ts2 = insert lmsg1 right
-  | otherwise = insert lmsg1 left
+insert lmsg@LogMessage{} Leaf = Node Leaf lmsg Leaf -- suggested by hlint
+{-insert lmsg@(LogMessage _ _ _) Leaf = Node Leaf lmsg Leaf-}
+insert lmsg1@(LogMessage _ ts1 _) (Node left lmsg2@(LogMessage _ ts2 _) right)
+  | ts1 > ts2 = Node left lmsg2 (insert lmsg1 right)
+  | otherwise = Node (insert lmsg1 left) lmsg2 right
 insert _ tree = tree
+
+-- Build MessageTree from list of messages
+build :: [LogMessage] -> MessageTree
+build = foldr insert Leaf -- pointfull style of this suggested by hlint
+{-build [] = Leaf-}
+{-build (lmsg:msgs) = insert lmsg (build msgs)-}
+
+-- Return sorted list of LogMessages in sorted MessageTree (by timestamp)
+-- from smallest to biggest.
+inOrder :: MessageTree -> [LogMessage]
+inOrder Leaf = []
+inOrder (Node left lmsg right) = inOrder left ++ [lmsg] ++ inOrder right
 
