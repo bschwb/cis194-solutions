@@ -63,3 +63,4 @@ line xs n = [if i >= n then '*' else ' ' | i <- xs]
 -- counts occurence of numbers in [0..9] in the input list.
 count :: [Integer] -> [Int]
 count xs = map (\n -> length $ filter (== n) xs) [0..9]
+
