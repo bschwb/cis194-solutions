@@ -1,18 +1,22 @@
 {-# OPTIONS_GHC -Wall #-}
 
+{-# LANGUAGE TypeSynonymInstances, FlexibleInstances #-}
+
 module Calc where
 
 import ExprT
 import Parser
+import StackVM
+import Data.Maybe
 
 -------------------------------------------------------------------------------
 -- Exercise 1
 
 -- > eval (Mul (Add (Lit 2) (Lit 3)) (Lit 4)) == 20
 eval :: ExprT -> Integer
-eval (Lit i) = i
-eval (Add a b) = eval a + eval b
-eval (Mul a b) = eval a * eval b
+eval (ExprT.Lit i) = i
+eval (ExprT.Add a b) = eval a + eval b
+eval (ExprT.Mul a b) = eval a * eval b
 
 -------------------------------------------------------------------------------
 -- Exercise 2
@@ -21,7 +25,7 @@ eval (Mul a b) = eval a * eval b
 -- producing Nothing for inputs which are not well-formed expressions,
 -- and Just n for well-formed inputs that evaluate to n
 evalStr :: String -> Maybe Integer
-evalStr = fmap eval . parseExp Lit Add Mul
+evalStr = fmap eval . parseExp ExprT.Lit ExprT.Add ExprT.Mul
 
 -------------------------------------------------------------------------------
 -- Exercise 3
@@ -32,9 +36,9 @@ class Expr a where
   mul :: a -> a -> a
 
 instance Expr ExprT where
-  lit = Lit
-  add = Add
-  mul = Mul
+  lit = ExprT.Lit
+  add = ExprT.Add
+  mul = ExprT.Mul
 
 reify :: ExprT -> ExprT
 reify = id
@@ -55,7 +59,6 @@ instance Expr Bool where
   add = (||)
   mul = (&&)
 
-
 newtype MinMax = MinMax Integer deriving (Eq, Show)
 
 instance Expr MinMax where
@@ -75,12 +78,35 @@ instance Expr Mod7 where
 testExp :: Expr a => Maybe a
 testExp = parseExp lit add mul "(3 * -4) + 5"
 
-testInteger = testExp :: Maybe Integer
-testBool = testExp :: Maybe Bool
-testMM = testExp :: Maybe MinMax
-testSat = testExp :: Maybe Mod7
+testInteger :: Maybe Integer
+testInteger = testExp
+
+testBool :: Maybe Bool
+testBool = testExp
+
+testMM :: Maybe MinMax
+testMM = testExp
+
+testSat :: Maybe Mod7
+testSat = testExp
 
 -------------------------------------------------------------------------------
 -- Exercise 5
 
+instance Expr StackVM.Program where
+  lit i = [StackVM.PushI i]
+  add a b = a ++ b ++ [StackVM.Add]
+  mul a b = a ++ b ++ [StackVM.Mul]
+
+testProg :: Maybe StackVM.Program
+testProg = testExp
+
+compile2 :: String -> Either String StackVal
+compile2 = stackVM . fromMaybe [] . compile
+
+compile :: String -> Maybe Program
+compile = parseExp lit add mul
+
+-------------------------------------------------------------------------------
+-- Exercise 6
 
