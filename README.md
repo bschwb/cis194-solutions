@@ -16,6 +16,6 @@ Feel free to add a PR or contact me for any improvements etc.
 For convenience I included the files for the homework assignments provided by
 the course. I did **NOT** create them.
 
-Also the ```lecture-test.hs``` include some codelines used in the lectures of
+Also the ```lecture-tests.hs``` include some codelines used in the lectures of
 the course for testing.
 

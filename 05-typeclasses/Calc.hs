@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -Wall #-}
+{-# OPTIONS_GHC -Wall -Werror #-}
 
 {-# LANGUAGE TypeSynonymInstances, FlexibleInstances #-}
 
@@ -127,14 +127,8 @@ instance HasVars VarExprT where
 
 type MapExpr = M.Map String Integer -> Maybe Integer
 
--- How to make safe? (M.!) will throw an error if @str@ is not in the Map
 instance HasVars MapExpr where
-  var = hasVars
-
-hasVars :: String -> MapExpr
-hasVars s m
-  | M.member s m = Just (m M.! s)
-  | otherwise    = Nothing
+  var = M.lookup
 
 instance Expr MapExpr where
   lit a = (\_ -> Just a)
@@ -150,3 +144,4 @@ instance Expr MapExpr where
 -- from assignment for testing
 withVars :: [(String, Integer)] -> MapExpr -> Maybe Integer
 withVars vs expr = expr $ M.fromList vs
+
