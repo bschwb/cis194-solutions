@@ -8,6 +8,7 @@ import ExprT
 import Parser
 import StackVM
 import Data.Maybe
+import qualified Data.Map as M
 
 -------------------------------------------------------------------------------
 -- Exercise 1
@@ -110,3 +111,42 @@ compile = parseExp lit add mul
 -------------------------------------------------------------------------------
 -- Exercise 6
 
+class HasVars a where
+  var :: String -> a
+
+data VarExprT = VarExprT String Integer
+  deriving (Show, Eq)
+
+instance Expr VarExprT where
+  lit = VarExprT ""
+  add (VarExprT _ a) (VarExprT _ b) = VarExprT "" (a + b)
+  mul (VarExprT _ a) (VarExprT _ b) = VarExprT "" (a * b)
+
+instance HasVars VarExprT where
+  var str = VarExprT str 0
+
+type MapExpr = M.Map String Integer -> Maybe Integer
+
+-- How to make safe? (M.!) will throw an error if @str@ is not in the Map
+instance HasVars MapExpr where
+  var = hasVars
+
+hasVars :: String -> MapExpr
+hasVars s m
+  | M.member s m = Just (m M.! s)
+  | otherwise    = Nothing
+
+instance Expr MapExpr where
+  lit a = (\_ -> Just a)
+
+  add f g = \m -> case (isNothing (f m) || isNothing (g m)) of
+                    True -> Nothing
+                    _    -> Just (fromJust (f m) + fromJust (g m))
+
+  mul f g = \m -> case (isNothing (f m) || isNothing (g m)) of
+                    True -> Nothing
+                    _    -> Just (fromJust (f m) * fromJust (g m))
+
+-- from assignment for testing
+withVars :: [(String, Integer)] -> MapExpr -> Maybe Integer
+withVars vs expr = expr $ M.fromList vs
