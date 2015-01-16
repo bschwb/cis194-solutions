@@ -99,3 +99,22 @@ instance Fractional (Stream Integer) where
 fibs10 :: Stream Integer
 fibs10 = x / (1 - x - x * x)
 
+--------------------------------------------------------------------------------
+-- Exercise 7
+data Matrix = Matrix Integer Integer Integer Integer deriving Show
+
+instance Num Matrix where
+  (*) (Matrix a11 a12 a21 a22) (Matrix b11 b12 b21 b22) =
+      (Matrix (a11*b11+a12*b21) (a11*b12+a12*b22)
+              (a21*b11+a22*b21) (a21*b12+a22*b22))
+
+fib4 :: Integer -> Integer
+fib4 0 = 0
+fib4 1 = 1
+fib4 n = getA11 (f^(n-1))
+  where f = Matrix 1 1 1 0
+
+getA11 :: Matrix -> Integer
+getA11 (Matrix a11 _ _ _) = a11
+
+
