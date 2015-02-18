@@ -107,7 +107,7 @@ doCommand Edit = do
   modBuffer $ replaceLine l new
 
 doCommand (Load filename) = do
-  mstr <- io $ handle (\(_ :: IOException) -> 
+  mstr <- io $ handle (\(_ :: IOException) ->
                          putStrLn "File not found." >> return Nothing
                       ) $ do
                  h <- openFile filename ReadMode
