@@ -36,13 +36,15 @@ treeFold :: (a -> [b] -> b) -> b -> Tree a -> b
 treeFold f init (Node {rootLabel = rl, subForest = sf})
   = f rl (map (treeFold f init) sf)
 
--- | First part of list is with boss
+-- | First part of list is with boss.
 nextLevel :: Employee -> [(GuestList, GuestList)] -> (GuestList, GuestList)
-nextLevel boss bestLists = (maximumS newWithBossL, maximumS newWithoutBossL)
-  where withBossL       = map fst bestLists
-        withoutBossL    = map snd bestLists
-        newWithBossL    = map (glCons boss) withBossL
-        newWithoutBossL = map (glCons boss) withoutBossL
+nextLevel boss bestLists = (maximumS withBossL, maximumS withoutBossL)
+  where withoutBossL   = map fst bestLists
+        -- ^ The new withoutBossList has sub bosses in it.
+
+        withoutSubBoss = map snd bestLists
+        withBossL      = map (glCons boss) withoutSubBoss
+        -- ^ The new withBossList doesn't have sub bosses in it.
 
 maximumS ::(Monoid a, Ord a) => [a] -> a
 maximumS [] = mempty
