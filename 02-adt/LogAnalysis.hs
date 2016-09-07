@@ -52,7 +52,7 @@ inOrder (Node left lmsg right) = inOrder left ++ [lmsg] ++ inOrder right
 -- corresponding to any errors with a severity of 50 or greater, sorted by
 -- timestamp.
 whatWentWrong :: [LogMessage] -> [String]
-whatWentWrong = extractMessage . filter (severe 50)
+whatWentWrong = extractMessage . inOrder . build . filter (severe 50)
 
 -- Returns True only when it's a Error with level > minLvl
 severe :: Int -> LogMessage -> Bool
