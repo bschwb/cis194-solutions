@@ -36,15 +36,13 @@ treeFold :: (a -> [b] -> b) -> b -> Tree a -> b
 treeFold f init (Node {rootLabel = rl, subForest = sf})
   = f rl (map (treeFold f init) sf)
 
--- | First part of list is with boss.
 nextLevel :: Employee -> [(GuestList, GuestList)] -> (GuestList, GuestList)
-nextLevel boss bestLists = (maximumS withBossL, maximumS withoutBossL)
-  where withoutBossL   = map fst bestLists
-        -- ^ The new withoutBossList has sub bosses in it.
-
-        withoutSubBoss = map snd bestLists
-        withBossL      = map (glCons boss) withoutSubBoss
-        -- ^ The new withBossList doesn't have sub bosses in it.
+nextLevel boss bestLists = (withBoss, noBoss)
+  where noBoss   = foldMap fst bestLists
+        --   ^   the boss does not go, so concat the all the first :
+        --       [(GL, _)] -> fst -> [GL] -> foldMap -> GL, since GLs are Monoids
+        withBoss = glCons boss (foldMap snd bestLists)
+        --   ^   the boss goes, so concat all the second and then add the boss
 
 maximumS ::(Monoid a, Ord a) => [a] -> a
 maximumS [] = mempty
